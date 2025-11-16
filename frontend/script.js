@@ -4,7 +4,8 @@ const errorSection = document.getElementById('errorSection');
 const loadingSection = document.getElementById('loadingSection');
 const submitBtn = document.getElementById('submitBtn');
 
-const API_URL = window.location.origin + '/api/predict';
+// Backend API URL - Point to port 5000 where the FastAPI server is running
+const API_URL = 'http://localhost:5000/api/predict';
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();

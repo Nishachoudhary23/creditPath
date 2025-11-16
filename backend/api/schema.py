@@ -4,61 +4,30 @@ from typing import List, Optional
 class BorrowerInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     
-    full_name: str = Field(..., min_length=1, description="Full name of borrower")
+    full_name: str = Field(..., description="Full name of borrower")
     email: EmailStr = Field(..., description="Email address")
     phone: str = Field(..., description="Phone number")
-    address: str = Field(..., min_length=5, description="Residential address")
-    city: str = Field(..., min_length=1, description="City")
-    state: str = Field(..., min_length=1, description="State")
+    address: str = Field(..., description="Residential address")
+    city: str = Field(..., description="City")
+    state: str = Field(..., description="State")
     pincode: str = Field(..., description="Pincode")
     
     employment_status: str = Field(..., description="Employment status")
-    employer_name: str = Field(..., min_length=1, description="Employer/Business name")
-    work_experience: float = Field(..., ge=0, description="Years of work experience")
-    monthly_income: float = Field(..., gt=0, description="Monthly income")
+    employer_name: str = Field(..., description="Employer/Business name")
+    work_experience: float = Field(..., description="Years of work experience")
+    monthly_income: float = Field(..., description="Monthly income")
     
-    loan_purpose: str = Field(..., min_length=1, description="Purpose of loan")
-    loan_amnt: float = Field(..., gt=0, description="Loan amount requested")
-    loan_term: int = Field(..., gt=0, le=360, description="Loan term in months")
+    loan_purpose: str = Field(..., description="Purpose of loan")
+    loan_amnt: float = Field(..., description="Loan amount requested")
+    loan_term: int = Field(..., description="Loan term in months")
     
-    annual_inc: float = Field(..., gt=0, description="Annual income")
-    dti: float = Field(..., ge=0, le=100, description="Debt-to-Income ratio (%)")
-    open_acc: int = Field(..., gt=0, description="Number of open credit accounts")
-    total_acc: int = Field(..., gt=0, description="Total number of credit accounts")
-    credit_age: float = Field(..., gt=0, description="Age of credit history in years")
-    revol_util: float = Field(..., ge=0, le=100, description="Revolving credit utilization (%)")
-    existing_loans: int = Field(..., ge=0, description="Number of existing loans")
-    
-    @field_validator('loan_amnt')
-    @classmethod
-    def validate_loan_amount(cls, v):
-        if v > 10000000:
-            raise ValueError('Loan amount must be less than 1 crore (10000000)')
-        return v
-    
-    @field_validator('annual_inc', 'monthly_income')
-    @classmethod
-    def validate_income(cls, v):
-        if v > 10000000:
-            raise ValueError('Income must be less than 1 crore (10000000)')
-        return v
-    
-    @field_validator('phone')
-    @classmethod
-    def validate_phone(cls, v):
-        if isinstance(v, str):
-            cleaned = ''.join(filter(str.isdigit, v))
-            if len(cleaned) < 10:
-                raise ValueError('Phone number must have at least 10 digits')
-        return v
-    
-    @field_validator('pincode')
-    @classmethod
-    def validate_pincode(cls, v):
-        if isinstance(v, str):
-            if not v.isdigit() or len(v) != 6:
-                raise ValueError('Pincode must be exactly 6 digits')
-        return v
+    annual_inc: float = Field(..., description="Annual income")
+    dti: float = Field(..., description="Debt-to-Income ratio (%)")
+    open_acc: int = Field(..., description="Number of open credit accounts")
+    total_acc: int = Field(..., description="Total number of credit accounts")
+    credit_age: float = Field(..., description="Age of credit history in years")
+    revol_util: float = Field(..., description="Revolving credit utilization (%)")
+    existing_loans: int = Field(..., description="Number of existing loans")
 
 class PredictionResponse(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
