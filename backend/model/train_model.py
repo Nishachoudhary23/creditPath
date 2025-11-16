@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -10,26 +9,41 @@ import joblib
 import os
 
 def train_and_save_model():
-    print("Generating synthetic dataset...")
-    X, y = make_classification(
-        n_samples=10000,
-        n_features=6,
-        n_informative=5,
-        n_redundant=1,
-        n_classes=2,
-        weights=[0.7, 0.3],
-        random_state=42
+    print("Generating realistic synthetic dataset...")
+    np.random.seed(42)
+    n_samples = 10000
+    
+    loan_amnt = np.random.uniform(10000, 1000000, n_samples)
+    annual_inc = np.random.uniform(200000, 2000000, n_samples)
+    dti = np.random.uniform(5, 80, n_samples)
+    open_acc = np.random.randint(1, 20, n_samples)
+    credit_age = np.random.uniform(0.5, 20, n_samples)
+    revol_util = np.random.uniform(0, 100, n_samples)
+    
+    risk_score = (
+        (dti / 100) * 0.3 +
+        (loan_amnt / annual_inc) * 0.25 +
+        (revol_util / 100) * 0.2 +
+        (1 / (credit_age + 1)) * 0.15 +
+        (1 / (open_acc + 1)) * 0.1
     )
     
-    feature_names = ['loan_amnt', 'annual_inc', 'dti', 'open_acc', 'credit_age', 'revol_util']
-    df = pd.DataFrame(X, columns=feature_names)
+    noise = np.random.normal(0, 0.15, n_samples)
+    risk_score = risk_score + noise
     
-    df['loan_amnt'] = np.abs(df['loan_amnt']) * 50000 + 10000
-    df['annual_inc'] = np.abs(df['annual_inc']) * 100000 + 20000
-    df['dti'] = np.abs(df['dti']) * 30 + 5
-    df['open_acc'] = (np.abs(df['open_acc']) * 10 + 1).astype(int)
-    df['credit_age'] = np.abs(df['credit_age']) * 15 + 1
-    df['revol_util'] = np.abs(df['revol_util']) * 80 + 10
+    threshold = np.percentile(risk_score, 70)
+    y = (risk_score > threshold).astype(int)
+    
+    df = pd.DataFrame({
+        'loan_amnt': loan_amnt,
+        'annual_inc': annual_inc,
+        'dti': dti,
+        'open_acc': open_acc,
+        'credit_age': credit_age,
+        'revol_util': revol_util
+    })
+    
+    print(f"Default rate: {y.mean():.2%}")
     
     print("Splitting data...")
     X_train, X_test, y_train, y_test = train_test_split(
@@ -46,7 +60,7 @@ def train_and_save_model():
     X_test_scaled = scaler.transform(X_test)
     
     print("Training Logistic Regression model...")
-    model = LogisticRegression(random_state=42, max_iter=1000)
+    model = LogisticRegression(random_state=42, max_iter=1000, C=0.1)
     model.fit(X_train_scaled, y_train_smote)
     
     print("Evaluating model...")
@@ -59,12 +73,16 @@ def train_and_save_model():
     print(f"Accuracy: {accuracy:.4f}")
     print(f"ROC-AUC: {roc_auc:.4f}")
     
+    print("\nFeature coefficients (impact on default risk):")
+    feature_names = ['loan_amnt', 'annual_inc', 'dti', 'open_acc', 'credit_age', 'revol_util']
+    for name, coef in zip(feature_names, model.coef_[0]):
+        print(f"  {name}: {coef:.4f}")
+    
     print("Saving model and scaler...")
     model_dir = os.path.dirname(__file__)
     model_path = os.path.join(model_dir, 'model.pkl')
-    scaler_path = os.path.join(model_dir, 'scaler.pkl')
     
-    joblib.dump({'model': model, 'scaler': scaler}, model_path)
+    joblib.dump({'model': model, 'scaler': scaler, 'feature_names': feature_names}, model_path)
     
     print(f"Model saved to {model_path}")
     print("Training complete!")
