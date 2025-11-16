@@ -1,15 +1,19 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.exceptions import RequestValidationError
 from backend.api.schema import BorrowerInput, PredictionResponse, BatchPredictionRequest, BatchPredictionResponse
 from backend.model.model_loader import load_model, is_model_loaded
 from backend.utils.recommendation import get_recommendation
 from backend.utils.logger import log_prediction
 import pandas as pd
+import logging
 
+logger = logging.getLogger('CreditPathAI')
 router = APIRouter()
 
 @router.post("/predict", response_model=PredictionResponse)
 async def predict(borrower: BorrowerInput):
     try:
+        logger.info(f"Received prediction request for: {borrower.full_name}")
         model_data = load_model()
         model = model_data['model']
         scaler = model_data['scaler']
@@ -56,13 +60,16 @@ async def predict(borrower: BorrowerInput):
         )
         
     except FileNotFoundError as e:
+        logger.error(f"Model file not found: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
+        logger.error(f"Prediction error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 @router.post("/predict_batch", response_model=BatchPredictionResponse)
 async def predict_batch(request: BatchPredictionRequest):
     try:
+        logger.info(f"Received batch prediction request for {len(request.borrowers)} borrowers")
         model_data = load_model()
         model = model_data['model']
         scaler = model_data['scaler']
@@ -113,8 +120,10 @@ async def predict_batch(request: BatchPredictionRequest):
         return BatchPredictionResponse(predictions=predictions)
         
     except FileNotFoundError as e:
+        logger.error(f"Model file not found: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
+        logger.error(f"Batch prediction error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Batch prediction error: {str(e)}")
 
 @router.get("/health")

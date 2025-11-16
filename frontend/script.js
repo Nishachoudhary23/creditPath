@@ -51,15 +51,22 @@ form.addEventListener('submit', async (e) => {
         });
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Assessment failed');
+            try {
+                const errorData = await response.json();
+                const errorMessage = errorData.detail || JSON.stringify(errorData);
+                throw new Error(errorMessage);
+            } catch (parseError) {
+                throw new Error(`Assessment failed with status ${response.status}`);
+            }
         }
         
         const data = await response.json();
+        console.log('Response data:', data);
         
         displayResults(data);
         
     } catch (error) {
+        console.error('Error:', error);
         showError(error.message);
     } finally {
         loadingSection.style.display = 'none';
@@ -68,25 +75,32 @@ form.addEventListener('submit', async (e) => {
 });
 
 function displayResults(data) {
-    document.getElementById('applicantName').textContent = data.applicant_name;
-    document.getElementById('applicantEmail').textContent = data.email;
-    document.getElementById('applicantPhone').textContent = data.phone;
-    document.getElementById('loanPurpose').textContent = data.loan_purpose;
-    document.getElementById('loanAmount').textContent = data.loan_amount.toLocaleString('en-IN');
-    
-    const probabilityPercent = (data.probability * 100).toFixed(2);
-    document.getElementById('probability').textContent = `${probabilityPercent}%`;
-    
-    const riskBandElement = document.getElementById('riskBand');
-    riskBandElement.textContent = data.risk_band;
-    riskBandElement.className = 'result-value risk-badge ' + data.risk_band.toLowerCase();
-    
-    document.getElementById('action').textContent = data.action;
-    
-    document.getElementById('recommendationDetails').textContent = data.recommendation_details;
-    
-    resultsSection.style.display = 'block';
-    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    try {
+        document.getElementById('applicantName').textContent = data.applicant_name || 'N/A';
+        document.getElementById('applicantEmail').textContent = data.email || 'N/A';
+        document.getElementById('applicantPhone').textContent = data.phone || 'N/A';
+        document.getElementById('loanPurpose').textContent = data.loan_purpose || 'N/A';
+        
+        const loanAmount = typeof data.loan_amount === 'number' ? data.loan_amount : parseFloat(data.loan_amount);
+        document.getElementById('loanAmount').textContent = isNaN(loanAmount) ? 'N/A' : loanAmount.toLocaleString('en-IN');
+        
+        const probability = typeof data.probability === 'number' ? data.probability : parseFloat(data.probability);
+        const probabilityPercent = isNaN(probability) ? 'N/A' : (probability * 100).toFixed(2);
+        document.getElementById('probability').textContent = `${probabilityPercent}%`;
+        
+        const riskBandElement = document.getElementById('riskBand');
+        riskBandElement.textContent = data.risk_band || 'N/A';
+        riskBandElement.className = 'result-value risk-badge ' + (data.risk_band ? data.risk_band.toLowerCase() : '');
+        
+        document.getElementById('action').textContent = data.action || 'N/A';
+        document.getElementById('recommendationDetails').textContent = data.recommendation_details || 'N/A';
+        
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        console.error('Error displaying results:', error);
+        showError('Failed to display results: ' + error.message);
+    }
 }
 
 function showError(message) {

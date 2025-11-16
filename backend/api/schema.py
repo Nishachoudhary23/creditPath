@@ -1,30 +1,32 @@
-from pydantic import BaseModel, Field, field_validator, EmailStr
+from pydantic import BaseModel, Field, field_validator, EmailStr, ConfigDict
 from typing import List, Optional
 
 class BorrowerInput(BaseModel):
-    full_name: str = Field(..., min_length=2, max_length=100, description="Full name of borrower")
-    email: EmailStr = Field(..., description="Email address")
-    phone: str = Field(..., min_length=10, max_length=15, description="Phone number")
-    address: str = Field(..., min_length=10, max_length=200, description="Residential address")
-    city: str = Field(..., min_length=2, max_length=50, description="City")
-    state: str = Field(..., min_length=2, max_length=50, description="State")
-    pincode: str = Field(..., min_length=6, max_length=6, description="Pincode")
+    model_config = ConfigDict(str_strip_whitespace=True)
     
-    employment_status: str = Field(..., description="Employment status (Salaried/Self-Employed/Business)")
-    employer_name: str = Field(..., min_length=2, max_length=100, description="Employer/Business name")
-    work_experience: float = Field(..., gt=0, description="Years of work experience")
+    full_name: str = Field(..., min_length=1, description="Full name of borrower")
+    email: EmailStr = Field(..., description="Email address")
+    phone: str = Field(..., description="Phone number")
+    address: str = Field(..., min_length=5, description="Residential address")
+    city: str = Field(..., min_length=1, description="City")
+    state: str = Field(..., min_length=1, description="State")
+    pincode: str = Field(..., description="Pincode")
+    
+    employment_status: str = Field(..., description="Employment status")
+    employer_name: str = Field(..., min_length=1, description="Employer/Business name")
+    work_experience: float = Field(..., ge=0, description="Years of work experience")
     monthly_income: float = Field(..., gt=0, description="Monthly income")
     
-    loan_purpose: str = Field(..., min_length=2, max_length=100, description="Purpose of loan")
+    loan_purpose: str = Field(..., min_length=1, description="Purpose of loan")
     loan_amnt: float = Field(..., gt=0, description="Loan amount requested")
     loan_term: int = Field(..., gt=0, le=360, description="Loan term in months")
     
     annual_inc: float = Field(..., gt=0, description="Annual income")
-    dti: float = Field(..., gt=0, le=100, description="Debt-to-Income ratio (%)")
+    dti: float = Field(..., ge=0, le=100, description="Debt-to-Income ratio (%)")
     open_acc: int = Field(..., gt=0, description="Number of open credit accounts")
     total_acc: int = Field(..., gt=0, description="Total number of credit accounts")
     credit_age: float = Field(..., gt=0, description="Age of credit history in years")
-    revol_util: float = Field(..., gt=0, le=100, description="Revolving credit utilization (%)")
+    revol_util: float = Field(..., ge=0, le=100, description="Revolving credit utilization (%)")
     existing_loans: int = Field(..., ge=0, description="Number of existing loans")
     
     @field_validator('loan_amnt')
@@ -44,19 +46,23 @@ class BorrowerInput(BaseModel):
     @field_validator('phone')
     @classmethod
     def validate_phone(cls, v):
-        cleaned = ''.join(filter(str.isdigit, v))
-        if len(cleaned) < 10:
-            raise ValueError('Phone number must have at least 10 digits')
+        if isinstance(v, str):
+            cleaned = ''.join(filter(str.isdigit, v))
+            if len(cleaned) < 10:
+                raise ValueError('Phone number must have at least 10 digits')
         return v
     
     @field_validator('pincode')
     @classmethod
     def validate_pincode(cls, v):
-        if not v.isdigit():
-            raise ValueError('Pincode must contain only digits')
+        if isinstance(v, str):
+            if not v.isdigit() or len(v) != 6:
+                raise ValueError('Pincode must be exactly 6 digits')
         return v
 
 class PredictionResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     applicant_name: str
     email: str
     phone: str
@@ -66,7 +72,7 @@ class PredictionResponse(BaseModel):
     loan_amount: float
     loan_purpose: str
     recommendation_details: str
-    financial_data: dict
+    financial_data: dict = {}
 
 class BatchPredictionRequest(BaseModel):
     borrowers: List[BorrowerInput]
