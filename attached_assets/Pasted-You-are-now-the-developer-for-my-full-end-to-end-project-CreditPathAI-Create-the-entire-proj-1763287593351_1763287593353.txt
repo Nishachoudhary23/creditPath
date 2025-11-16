@@ -1,0 +1,183 @@
+You are now the developer for my full end-to-end project **CreditPathAI**.  
+Create the entire project in one shot with full code, folder structure, and working integrations.
+
+===========================
+PROJECT REQUIREMENTS
+===========================
+
+📌 GOAL  
+Build a complete intelligent loan default risk prediction system:
+- ML model (Logistic Regression or XGBoost)
+- FastAPI backend
+- Recommendation engine (Low/Medium/High)
+- Logging system
+- Error handling
+- Frontend (HTML + CSS + JS)
+- Full integration: form → API → model → action
+
+===========================
+CREATE THIS FOLDER STRUCTURE
+===========================
+
+backend/
+    main.py
+    api/
+        routes.py
+        schema.py
+    model/
+        train_model.py
+        model_loader.py
+        model.pkl (save during training)
+    utils/
+        recommendation.py
+        logger.py
+    logs/
+        app.log
+
+frontend/
+    index.html
+    style.css
+    script.js
+
+===========================
+BACKEND REQUIREMENTS
+===========================
+
+### 1. Model Training (train_model.py)
+- Load synthetic dataset (use sklearn make_classification OR similar)
+- Preprocessing:
+  ▪ train-test-split  
+  ▪ scaling  
+  ▪ optional SMOTE  
+- Train Logistic Regression or XGBoost  
+- Evaluate: accuracy + ROC-AUC  
+- Save trained model as **model.pkl**
+
+### 2. Model Loader (model_loader.py)
+- Load and return model.pkl  
+- Handle file not found error.
+
+### 3. Pydantic Schema (schema.py)
+Create BorrowerInput with fields:
+    loan_amnt: float
+    annual_inc: float
+    dti: float
+    open_acc: int
+    credit_age: float
+    revol_util: float
+
+Add input validation rules:
+- All must be positive
+- dti must be <= 100
+- income < 1 crore
+- loan < 1 crore
+
+### 4. Recommendation Engine (recommendation.py)
+Implement:
+Probability 0–0.3 → Low → "Standard Reminder"
+0.3–0.6 → Medium → "Personalized Call"
+0.6–1.0 → High → "Priority Collection"
+
+Return JSON:
+{
+  "probability": <float>,
+  "risk_band": <Low/Medium/High>,
+  "action": <string>
+}
+
+### 5. Logging System (logger.py)
+- Log timestamps, input, predicted prob, action
+- Save logs to backend/logs/app.log
+- Add rotating logs:
+  ▪ maxBytes = 1MB  
+  ▪ backupCount = 3  
+
+### 6. API Routes (routes.py)
+Implement:
+
+POST /predict  
+- Validate input  
+- Convert to DataFrame  
+- Predict probability  
+- Apply recommendation  
+- Log event  
+- Return JSON response  
+
+POST /predict_batch  
+- Accept list of borrowers  
+- Return list of recommendation results  
+
+GET /health  
+Return: {"status": "ok", "model_loaded": true}
+
+Use try-except for errors and return user-friendly JSON.
+
+### 7. Main FastAPI App (main.py)
+- Initialize FastAPI  
+- Enable CORS for frontend  
+- Include routes  
+- Print “CreditPathAI API running…” on startup.
+
+===========================
+FRONTEND REQUIREMENTS
+===========================
+
+### 1. index.html
+- Clean form UI
+- Inputs:
+    Loan Amount
+    Annual Income
+    DTI
+    Open Accounts
+    Credit Age
+    Revolving Utilization
+- Submit button
+- Results Section:
+    “Default Probability: X%”
+    “Risk: Medium”
+    “Recommended Action: Personalized Call”
+
+Link style.css & script.js
+
+### 2. style.css
+- White + blue theme  
+- Card container  
+- Professional labels  
+- Responsive  
+
+### 3. script.js
+- Collect form values  
+- Create JSON:
+{
+  loan_amnt,
+  annual_inc,
+  dti,
+  open_acc,
+  credit_age,
+  revol_util
+}
+- Send POST request → http://localhost:8000/predict  
+- Receive JSON & display results  
+- Handle errors  
+- Show loading state  
+
+===========================
+ADDITIONAL OUTPUT
+===========================
+
+Also generate:
+
+📄 PROJECT_DEMO.md containing:
+- What is CreditPathAI?
+- How full pipeline works
+- Example request & response JSON
+- How to run backend:
+      uvicorn backend.main:app --reload
+- How to open frontend
+- A 5-step demo script for final presentation
+
+===========================
+
+Now generate all files with full code exactly matching this architecture.
+Ensure all imports work correctly and code is consistent across the project.
+Do NOT give explanations — only output code files and directories.
