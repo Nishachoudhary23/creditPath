@@ -10,7 +10,6 @@ def get_recommendation(probability: float) -> dict:
         action = "Priority Collection"
     
     return {
-        "probability": round(probability, 4),
         "risk_band": risk_band,
         "action": action
     }

@@ -29,7 +29,7 @@ async def predict(borrower: BorrowerInput):
         
         recommendation = get_recommendation(probability)
         
-        recommendation_details = f"Based on financial analysis, the applicant shows a {recommendation['risk_band'].lower()} probability ({recommendation['probability']*100:.2f}%) of loan default. {recommendation['action']} is recommended."
+        recommendation_details = f"Based on financial analysis, the applicant shows a {recommendation['risk_band'].lower()} probability ({probability*100:.2f}%) of loan default. {recommendation['action']} is recommended."
         
         log_prediction(
             {
@@ -46,7 +46,7 @@ async def predict(borrower: BorrowerInput):
             applicant_name=borrower.full_name,
             email=borrower.email,
             phone=borrower.phone,
-            probability=recommendation['probability'],
+            probability=round(probability, 4),
             risk_band=recommendation['risk_band'],
             action=recommendation['action'],
             loan_amount=borrower.loan_amnt,
@@ -84,7 +84,7 @@ async def predict_batch(request: BatchPredictionRequest):
             probability = float(model.predict_proba(df_scaled)[0][1])
             recommendation = get_recommendation(probability)
             
-            recommendation_details = f"Based on financial analysis, the applicant shows a {recommendation['risk_band'].lower()} probability ({recommendation['probability']*100:.2f}%) of loan default. {recommendation['action']} is recommended."
+            recommendation_details = f"Based on financial analysis, the applicant shows a {recommendation['risk_band'].lower()} probability ({probability*100:.2f}%) of loan default. {recommendation['action']} is recommended."
             
             log_prediction(
                 {
@@ -101,7 +101,7 @@ async def predict_batch(request: BatchPredictionRequest):
                 applicant_name=borrower.full_name,
                 email=borrower.email,
                 phone=borrower.phone,
-                probability=recommendation['probability'],
+                probability=round(probability, 4),
                 risk_band=recommendation['risk_band'],
                 action=recommendation['action'],
                 loan_amount=borrower.loan_amnt,

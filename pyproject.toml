@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "email-validator>=2.3.0",
     "fastapi>=0.121.2",
     "imbalanced-learn>=0.14.0",
     "joblib>=1.5.2",
