@@ -10,7 +10,7 @@ const API_URL = (function() {
     try {
         const port = window.location.port;
         // If the page is served by Live Server on 5500, target backend at 5000
-        if (port === '5500') return 'http://localhost:5000/api/predict';
+        if (port === '5500') return 'http://127.0.0.1:5000/api/predict';
         // Otherwise assume backend is mounted at same origin (e.g. http://localhost:5000/)
         return `${window.location.origin}/api/predict`;
     } catch (e) {
@@ -142,6 +142,17 @@ function displayResults(data) {
         
         resultsSection.style.display = 'block';
         resultsSection.scrollIntoView({ behavior: 'smooth' });
+        // Show raw JSON in debug box for easier troubleshooting
+        try {
+            const rawEl = document.getElementById('rawResponse');
+            const debugSection = document.getElementById('debugSection');
+            if (rawEl) {
+                rawEl.textContent = JSON.stringify(data, null, 2);
+            }
+            if (debugSection) debugSection.style.display = 'block';
+        } catch (err) {
+            console.warn('Could not render raw debug response', err);
+        }
     } catch (error) {
         console.error('Error displaying results:', error);
         showError('Failed to display results: ' + error.message);
@@ -152,4 +163,14 @@ function showError(message) {
     errorSection.textContent = `Error: ${message}`;
     errorSection.style.display = 'block';
     errorSection.scrollIntoView({ behavior: 'smooth' });
+
+    // also display the error in the debug box
+    try {
+        const rawEl = document.getElementById('rawResponse');
+        const debugSection = document.getElementById('debugSection');
+        if (rawEl) rawEl.textContent = message;
+        if (debugSection) debugSection.style.display = 'block';
+    } catch (err) {
+        // ignore
+    }
 }
