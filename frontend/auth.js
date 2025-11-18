@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = window.API_BASE || window.location.origin;
 
 document.getElementById('showSignup').addEventListener('click', (e) => {
     e.preventDefault();

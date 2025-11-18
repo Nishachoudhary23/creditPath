@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = window.API_BASE || window.location.origin;
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 
