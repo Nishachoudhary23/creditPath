@@ -6,6 +6,8 @@ from backend.auth.routes import get_current_user
 import pandas as pd
 import io
 import logging
+from openpyxl.styles import PatternFill, Font
+from openpyxl.styles import PatternFill, Font
 
 logger = logging.getLogger('CreditPathAI')
 router = APIRouter()
@@ -73,7 +75,27 @@ async def download_batch_results(predictions: dict, current_user: dict = Depends
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Predictions')
-        
+            workbook = writer.book
+            worksheet = writer.sheets['Predictions']
+            
+            risk_col_index = df.columns.get_loc('risk_level') + 1 if 'risk_level' in df.columns else None
+            if risk_col_index:
+                low_fill = PatternFill(start_color="D1FAE5", end_color="D1FAE5", fill_type="solid")
+                medium_fill = PatternFill(start_color="FEF3C7", end_color="FEF3C7", fill_type="solid")
+                high_fill = PatternFill(start_color="FEE2E2", end_color="FEE2E2", fill_type="solid")
+                bold_font = Font(bold=True)
+
+                for row_idx, value in enumerate(df['risk_level'], start=2):
+                    cell = worksheet.cell(row=row_idx, column=risk_col_index)
+                    risk_value = (value or '').strip().lower()
+                    if risk_value == 'low':
+                        cell.fill = low_fill
+                    elif risk_value == 'medium':
+                        cell.fill = medium_fill
+                    elif risk_value == 'high':
+                        cell.fill = high_fill
+                    cell.font = bold_font
+
         output.seek(0)
         
         return StreamingResponse(
