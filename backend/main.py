@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi import Request
+from fastapi.responses import RedirectResponse
 import os
 
 app = FastAPI(title="CreditPathAI", version="1.0.0")
@@ -24,6 +25,10 @@ app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
 app.include_router(batch_router, prefix="/api/batch", tags=["batch"])
 
 frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+@app.get('/old_form.html', include_in_schema=False)
+async def redirect_old_form():
+    return RedirectResponse(url='/index.html')
+
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 

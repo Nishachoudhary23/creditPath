@@ -57,5 +57,16 @@
     </div>
 
     <script src="auth.js"></script>
+        <script>
+        // If a token exists already, immediately go to dashboard
+        try {
+            const token = localStorage.getItem('token');
+            if (token) {
+                window.location.replace('/dashboard.html');
+            }
+        } catch (e) {
+            // ignore
+        }
+        </script>
 </body>
 </html>
