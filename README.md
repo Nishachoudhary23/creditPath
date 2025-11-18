@@ -50,12 +50,26 @@ python backend/model/train_model.py
 Start the FastAPI server. This command mounts the `frontend` folder and serves both the API and static site at port 5000:
 
 ```powershell
-& '.venv\Scripts\python.exe' -m uvicorn backend.main:app --host 0.0.0.0 --port 5000 --workers 1
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 5000
 ```
+
+> 💡 If you're already inside the activated `.venv`, the shorter `python -m uvicorn ...` form above is all you need. Otherwise, prefix it with `.\.venv\Scripts\python`.
 
 Open the app at:
 - Backend-served frontend: http://localhost:5000
 - API base: http://localhost:5000/api
+
+### Frontend-only live preview
+When you open `frontend/dashboard.html` with a separate static server (for example VS Code Live Server on port 5500), the browser now auto-detects and targets the backend on port 5000 via `frontend/config.js`. No manual URL tweaks are required; as soon as the backend is running locally the Single Prediction form will work.
+
+### Batch Excel download formatting
+The downloadable `batch_predictions.xlsx` produced by `/api/batch/download_batch_results` now highlights the `risk_level` column automatically:
+- Low → green background
+- Medium → amber background
+- High → red background
+
+This makes it easier to scan risk levels immediately after opening the workbook in Excel or LibreOffice.
+
 
 ## Run the frontend with Live Server (optional)
 If you prefer editing the frontend in VS Code with Live Server (which serves on port 5500), start the backend first (port 5000), then Open `frontend/index.html` with Live Server. The client is preconfigured to call the backend at `http://localhost:5000/api/predict` when served from Live Server.
