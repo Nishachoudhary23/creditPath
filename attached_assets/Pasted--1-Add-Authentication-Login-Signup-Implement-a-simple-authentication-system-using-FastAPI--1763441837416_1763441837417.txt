@@ -1,0 +1,189 @@
+✔️ 1. Add Authentication (Login + Signup)
+
+Implement a simple authentication system using:
+
+FastAPI backend
+
+SQLite or JSON file for user storage
+
+Password hashing (bcrypt)
+
+JWT token-based login
+
+Frontend login & signup using popup modals (not separate pages)
+
+Requirements:
+
+If user is not logged in → redirect to login popup
+
+If login successful → redirect to Dashboard page
+
+Popup UI Requirements:
+
+Modern clean modal
+
+Input: email + password
+
+For signup: name + email + password
+
+✔️ 2. Create Dashboard Page
+
+After login, user goes to:
+/dashboard
+
+Dashboard must include:
+
+Navigation sidebar:
+
+Single Prediction (default page)
+
+Batch Prediction
+
+About
+
+Logout
+
+When dashboard loads → show Single Prediction section automatically
+
+✔️ 3. Single Prediction (Already Built)
+
+Keep my existing single prediction but move it into:
+dashboard/single.html
+
+When user submits form → call /predict API.
+
+Show:
+
+Probability
+
+Risk Category
+
+Recommendation
+
+Color-coded output card
+
+✔️ 4. Batch Prediction
+
+Create a new page:
+dashboard/batch.html
+
+This page must allow:
+
+Upload Excel file (.xlsx)
+
+Send it to /predict_batch API
+
+Backend reads file using pandas
+
+Predict for every row
+
+Return JSON list of predictions
+
+Frontend displays results in a table:
+
+Columns:
+
+Row Number
+
+Probability
+
+Risk Level
+
+Recommendation
+
+Allow user to download results as .xlsx also.
+
+✔️ 5. About Page
+
+Create:
+dashboard/about.html
+
+Include:
+
+Project overview (from my PDF)
+
+Model metrics (hardcoded):
+
+Accuracy
+
+F1 Score
+
+ROC-AUC
+
+Display ROC-AUC curve graph → load as static image from /static/roc_curve.png
+
+Display feature importance graph if possible
+
+Add a clean UI card layout
+
+✔️ 6. Logout Option
+
+Add logout button in sidebar:
+
+Clear JWT token
+
+Redirect to login popup
+
+✔️ 7. Frontend Integration & Routing
+
+Fix all the routes:
+
+/ → Login modal
+
+/signup → Signup modal
+
+/dashboard → main dashboard
+
+/dashboard/single
+
+/dashboard/batch
+
+/dashboard/about
+
+Ensure login check is enforced:
+
+If token missing → redirect /
+
+✔️ 8. Deliver Complete File Structure
+
+Generate updated:
+
+FastAPI main.py
+
+Auth routes
+
+Batch prediction API
+
+Frontend HTML files
+
+CSS & JS
+
+Modal popup code
+
+Dashboard layout
+
+✔️ 9. Make UI Attractive
+
+Use:
+
+Tailwind or pure CSS
+
+Modern cards
+
+Blue/green color scheme
+
+Responsive sidebar + content layout
+
+✔️ 10. Final Output
+
+Provide:
+
+Complete code files
+
+Folder structure
+
+Instructions to run
+
+Any dependency installation commands
+
+Make sure everything is fully integrated and ready to run.

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.exceptions import RequestValidationError
 from backend.api.schema import BorrowerInput, PredictionResponse, BatchPredictionRequest, BatchPredictionResponse
 from backend.model.model_loader import load_model, is_model_loaded
 from backend.utils.recommendation import get_recommendation
 from backend.utils.logger import log_prediction
+from backend.auth.routes import get_current_user
 import pandas as pd
 import logging
 
@@ -11,7 +12,7 @@ logger = logging.getLogger('CreditPathAI')
 router = APIRouter()
 
 @router.post("/predict", response_model=PredictionResponse)
-async def predict(borrower: BorrowerInput):
+async def predict(borrower: BorrowerInput, current_user: dict = Depends(get_current_user)):
     try:
         logger.info(f"Received prediction request for: {borrower.full_name}")
         model_data = load_model()
@@ -67,7 +68,7 @@ async def predict(borrower: BorrowerInput):
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 @router.post("/predict_batch", response_model=BatchPredictionResponse)
-async def predict_batch(request: BatchPredictionRequest):
+async def predict_batch(request: BatchPredictionRequest, current_user: dict = Depends(get_current_user)):
     try:
         logger.info(f"Received batch prediction request for {len(request.borrowers)} borrowers")
         model_data = load_model()

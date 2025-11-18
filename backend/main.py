@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes import router
+from backend.auth.routes import router as auth_router
+from backend.api.batch_routes import router as batch_router
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -18,6 +20,8 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api", tags=["predictions"])
+app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
+app.include_router(batch_router, prefix="/api/batch", tags=["batch"])
 
 frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 if os.path.exists(frontend_path):

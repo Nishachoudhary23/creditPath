@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreditPathAI - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <h1>CreditPathAI</h1>
+            <div class="user-info">
+                <p id="userName">Welcome, User</p>
+            </div>
+            <nav>
+                <a href="#" data-page="single" class="nav-link active">Single Prediction</a>
+                <a href="#" data-page="batch" class="nav-link">Batch Prediction</a>
+                <a href="#" data-page="about" class="nav-link">About</a>
+                <a href="#" id="logoutBtn" class="nav-link logout">Logout</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div id="singlePrediction" class="page-content active">
+                <h2>Single Prediction</h2>
+                <div class="prediction-form-container">
+                    <form id="predictionForm">
+                        <div class="section-title">Personal Information</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="full_name">Full Name *</label>
+                                <input type="text" id="full_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loan_purpose">Loan Purpose *</label>
+                                <select id="loan_purpose" required>
+                                    <option value="">Select...</option>
+                                    <option value="Home Purchase">Home Purchase</option>
+                                    <option value="Car Purchase">Car Purchase</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Personal">Personal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="section-title">Loan & Financial Details</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="loan_amnt">Loan Amount (₹) *</label>
+                                <input type="number" id="loan_amnt" required min="10000">
+                            </div>
+                            <div class="form-group">
+                                <label for="annual_inc">Annual Income (₹) *</label>
+                                <input type="number" id="annual_inc" required min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dti">Debt-to-Income Ratio (%) *</label>
+                                <input type="number" id="dti" step="0.01" required min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="open_acc">Open Credit Accounts *</label>
+                                <input type="number" id="open_acc" required min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="credit_age">Credit History Age (years) *</label>
+                                <input type="number" id="credit_age" step="0.1" required min="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="revol_util">Revolving Credit Utilization (%) *</label>
+                                <input type="number" id="revol_util" step="0.01" required min="0" max="100">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Assess Risk</button>
+                    </form>
+
+                    <div id="resultsSection" class="results-card" style="display: none;">
+                        <h3>Risk Assessment Results</h3>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="label">Applicant:</span>
+                                <span id="resultName" class="value"></span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Default Probability:</span>
+                                <span id="resultProb" class="value"></span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Risk Level:</span>
+                                <span id="resultRisk" class="value risk-badge"></span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Recommendation:</span>
+                                <span id="resultAction" class="value"></span>
+                            </div>
+                        </div>
+                        <div class="recommendation-box">
+                            <p id="resultDetails"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="batchPrediction" class="page-content" style="display: none;">
+                <h2>Batch Prediction</h2>
+                <div class="batch-container">
+                    <div class="upload-section">
+                        <p>Upload an Excel file (.xlsx) with the following columns:</p>
+                        <ul>
+                            <li>loan_amnt</li>
+                            <li>annual_inc</li>
+                            <li>dti</li>
+                            <li>open_acc</li>
+                            <li>credit_age</li>
+                            <li>revol_util</li>
+                        </ul>
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" />
+                        <button id="uploadBtn" class="btn-primary">Upload & Predict</button>
+                    </div>
+
+                    <div id="batchResults" style="display: none;">
+                        <div class="batch-header">
+                            <h3>Batch Results</h3>
+                            <button id="downloadBtn" class="btn-secondary">Download Results</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="resultsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Row</th>
+                                        <th>Probability</th>
+                                        <th>Risk Level</th>
+                                        <th>Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="about" class="page-content" style="display: none;">
+                <h2>About CreditPathAI</h2>
+                <div class="about-container">
+                    <div class="about-card">
+                        <h3>Project Overview</h3>
+                        <p>CreditPathAI is an intelligent loan default risk assessment system powered by machine learning. 
+                        The system analyzes borrower financial data to predict the likelihood of loan default, helping 
+                        financial institutions make informed lending decisions.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>Model Performance Metrics</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <div class="metric-value">92.5%</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">0.89</div>
+                                <div class="metric-label">F1 Score</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">0.94</div>
+                                <div class="metric-label">ROC-AUC</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">87%</div>
+                                <div class="metric-label">Precision</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>Key Features</h3>
+                        <ul class="features-list">
+                            <li>Real-time single loan default prediction</li>
+                            <li>Batch processing for multiple applications</li>
+                            <li>Risk categorization (Low, Medium, High)</li>
+                            <li>Actionable recommendations for each application</li>
+                            <li>Secure authentication and user management</li>
+                            <li>Excel file upload and download support</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>Technology Stack</h3>
+                        <ul class="features-list">
+                            <li>Backend: FastAPI (Python)</li>
+                            <li>Machine Learning: Scikit-learn, Random Forest</li>
+                            <li>Authentication: JWT with bcrypt password hashing</li>
+                            <li>Data Processing: Pandas, NumPy</li>
+                            <li>Frontend: HTML, CSS, JavaScript</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+                <p id="loadingText">Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
