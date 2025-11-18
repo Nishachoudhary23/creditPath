@@ -58,15 +58,34 @@
 
     <script src="auth.js"></script>
         <script>
-        // If a token exists already, immediately go to dashboard
-        try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                window.location.replace('/dashboard.html');
+        // If a token exists, verify it with the backend before redirecting.
+        // This prevents stale/invalid tokens from immediately sending users to the dashboard.
+        (async function() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const resp = await fetch(`${window.location.origin}/api/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (resp.ok) {
+                    // valid token -> go to dashboard
+                    window.location.replace('/dashboard.html');
+                } else {
+                    // invalid token: clear it so login/signup is shown
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            } catch (err) {
+                // network or other error: do not redirect and leave user on login page
+                console.warn('Token verification failed, staying on login page.', err);
+                try { localStorage.removeItem('token'); localStorage.removeItem('user'); } catch(e){}
             }
-        } catch (e) {
-            // ignore
-        }
+        })();
         </script>
 </body>
 </html>
