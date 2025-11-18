@@ -29,7 +29,9 @@ document.getElementById('logoutBtn').addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/index.html';
+    // show loading while redirecting to login
+    try { showLoading('Signing out...'); } catch(e){}
+    setTimeout(() => window.location.href = '/index.html', 120);
 });
 
 document.getElementById('predictionForm').addEventListener('submit', async (e) => {
@@ -147,6 +149,7 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
         return;
     }
 
+    showLoading('Preparing download...');
     try {
         const response = await fetch(`${API_BASE}/api/batch/download_batch_results`, {
             method: 'POST',
@@ -172,14 +175,8 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
         document.body.removeChild(a);
     } catch (error) {
         alert('Error downloading file: ' + error.message);
+    } finally {
+        hideLoading();
     }
 });
 
-function showLoading(text = 'Processing...') {
-    document.getElementById('loadingText').textContent = text;
-    document.getElementById('loadingOverlay').style.display = 'flex';
-}
-
-function hideLoading() {
-    document.getElementById('loadingOverlay').style.display = 'none';
-}
